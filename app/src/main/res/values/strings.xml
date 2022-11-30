@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">RastreadorDeportivo</string>
+    <string name="rastreadordeportivo">Rastreador Deportivo</string>
+    <string name="imagenlogo">Imagen del Logo</string>
+    <string name="btnacceder">Acceder</string>
+    <string name="password">Contraseña</string>
+    <string name="sacarfoto">Sacar Foto</string>
+    <string name="cogerfoto">Coger Foto</string>
+</resources>

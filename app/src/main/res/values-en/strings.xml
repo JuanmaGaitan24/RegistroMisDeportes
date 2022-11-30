@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SportTracker</string>
+    <string name="rastreadordeportivo">Sport Tracker</string>
+    <string name="imagenlogo">Logo Image</string>
+    <string name="btnacceder">"To access "</string>
+    <string name="sacarfoto">"Take a picture "</string>
+    <string name="cogerfoto">Take Photo</string>
+    <string name="password">Password</string>
+</resources>
