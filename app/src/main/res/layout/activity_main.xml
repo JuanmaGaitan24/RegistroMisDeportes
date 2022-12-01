@@ -118,9 +118,11 @@
         android:id="@+id/imageViewFotoPerfil"
         android:layout_width="200dp"
         android:layout_height="200dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/buttonAcceder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSacarFoto" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonSacarFoto"
+        tools:srcCompat="@drawable/nophoto" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

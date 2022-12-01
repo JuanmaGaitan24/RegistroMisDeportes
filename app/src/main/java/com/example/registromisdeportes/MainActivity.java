@@ -9,10 +9,13 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -118,12 +121,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK && requestCode == VENGO_GALERIA){
             Uri ruta = data.getData();
             FotoPerfil.setImageURI(ruta);
+        } else if (requestCode == VENGO_CAMARA){
+            if (resultCode == RESULT_OK){
+                FotoPerfil.setImageBitmap(BitmapFactory.decodeFile(fichero.getAbsolutePath()));
+                actualizarGaleria(fichero.getAbsolutePath());
+            }
         } else {
             Toast.makeText(this, "Ha ocurrido un error", Toast.LENGTH_SHORT).show();
         }
+
+    }
+
+    private void actualizarGaleria(String absolutePath) {
+
+        MediaScannerConnection.scanFile(this, new String[]{absolutePath}, null, new MediaScannerConnection.OnScanCompletedListener() {
+            @Override
+            public void onScanCompleted(String s, Uri uri) {
+                Log.d("ACTUALIZAR", "Se ha actualizado la galeria");
+            }
+        });
 
     }
 }
