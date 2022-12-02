@@ -7,7 +7,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
@@ -32,15 +34,23 @@ public class MainActivity extends AppCompatActivity {
     private static final int VENGO_GALERIA = 101;
     private static final int PIDO_PERMISO_ESCRITURA = 111;
     private static final int VENGO_CAMARA = 76;
+    private static final String NOMBRE_FICHERO = "DATOS";
+    private static final String PATH_NAME = "MY_PATH";
+    private static final String PASSWORD_NAME = "MY_PASSWORD";
     Button btnSacarFoto, btnCogerFoto, btnAcceder;
     TextView Contrasenna;
     ImageView FotoPerfil;
     File fichero;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
+        SharedPreferences.Editor editor = MisCredenciales.edit();
 
         btnSacarFoto = findViewById(R.id.buttonSacarFoto);
         btnCogerFoto = findViewById(R.id.buttonCogerFoto);
@@ -60,6 +70,21 @@ public class MainActivity extends AppCompatActivity {
         btnSacarFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {PedirPermisosFoto();}
+        });
+
+        btnAcceder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String original_pass = MisCredenciales.getString(PASSWORD_NAME, "--No Contraseña--");
+
+                if (original_pass == "--No Contraseña--"){
+
+
+
+                }
+
+            }
         });
 
     }
