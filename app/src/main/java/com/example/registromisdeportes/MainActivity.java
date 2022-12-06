@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOMBRE_FICHERO = "DATOS";
     private static final String PATH_NAME = "MY_PATH";
     private static final String PASSWORD_NAME = "MY_PASSWORD";
+    private static final String CLAVE = "CLAVE";
+    private static final String IMAGE_PATH = "IMAGE_PATH";
     Button btnSacarFoto, btnCogerFoto, btnAcceder;
     TextView Contrasenna;
     ImageView FotoPerfil;
@@ -50,13 +53,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
-        SharedPreferences.Editor editor = MisCredenciales.edit();
 
         btnSacarFoto = findViewById(R.id.buttonSacarFoto);
         btnCogerFoto = findViewById(R.id.buttonCogerFoto);
         btnAcceder = findViewById(R.id.buttonAcceder);
         Contrasenna = findViewById(R.id.editTextTextPassword);
         FotoPerfil = findViewById(R.id.imageViewFotoPerfil);
+
+        String original_pass = MisCredenciales.getString(PASSWORD_NAME, "No Contraseña");
+        String photo_path = MisCredenciales.getString(IMAGE_PATH, "No Foto");
+
+        if (original_pass == "No Contraseña"){
+            btnAcceder.setText("Registrarte");
+        } else {
+            btnAcceder.setText("Iniciar Sesion");
+        }
+
+        if (photo_path == "No Foto"){
+            FotoPerfil.setImageURI(Uri.parse(String.valueOf(R.drawable.nophoto)));
+        } else {
+            FotoPerfil.setImageURI(Uri.parse(photo_path));
+        }
 
         btnCogerFoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,13 +92,22 @@ public class MainActivity extends AppCompatActivity {
         btnAcceder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
+                String original_pass = MisCredenciales.getString(PASSWORD_NAME, "No Contraseña");
 
-                String original_pass = MisCredenciales.getString(PASSWORD_NAME, "--No Contraseña--");
+                if (original_pass == "No Contraseña"){
 
-                if (original_pass == "--No Contraseña--"){
+                    SharedPreferences.Editor editor = MisCredenciales.edit();
+                    editor.putString(PASSWORD_NAME, Contrasenna.getText().toString());
+                    Toast.makeText(MainActivity.this, "Contraseña guardada con exito", Toast.LENGTH_SHORT).show();
+                    editor.apply();
 
-
-
+                } else {
+                    if (original_pass.equals(Contrasenna.getText().toString())){
+                        Toast.makeText(MainActivity.this, "Clave correcta", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, original_pass, Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -146,12 +172,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
+        SharedPreferences.Editor editor = MisCredenciales.edit();
+
         if (resultCode == RESULT_OK && requestCode == VENGO_GALERIA){
             Uri ruta = data.getData();
+            editor.putString(IMAGE_PATH, ruta.toString());
+            editor.apply();
             FotoPerfil.setImageURI(ruta);
         } else if (requestCode == VENGO_CAMARA){
             if (resultCode == RESULT_OK){
                 FotoPerfil.setImageBitmap(BitmapFactory.decodeFile(fichero.getAbsolutePath()));
+                editor.putString(IMAGE_PATH, fichero.getAbsolutePath());
+                editor.apply();
                 actualizarGaleria(fichero.getAbsolutePath());
             }
         } else {
