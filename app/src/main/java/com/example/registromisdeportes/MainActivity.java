@@ -19,6 +19,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,12 +42,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String PASSWORD_NAME = "MY_PASSWORD";
     private static final String CLAVE = "CLAVE";
     private static final String IMAGE_PATH = "IMAGE_PATH";
+    private static final String BTN_BLOCK = "BTN_BLOCK";
+    private static int num_intentos = 3;
     Button btnSacarFoto, btnCogerFoto, btnAcceder;
     TextView Contrasenna;
     ImageView FotoPerfil;
     File fichero;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         String original_pass = MisCredenciales.getString(PASSWORD_NAME, "No Contraseña");
         String photo_path = MisCredenciales.getString(IMAGE_PATH, "No Foto");
+        boolean btn_block = MisCredenciales.getBoolean(BTN_BLOCK, false);
 
         if (original_pass == "No Contraseña"){
             btnAcceder.setText("Registrarte");
@@ -72,7 +75,13 @@ public class MainActivity extends AppCompatActivity {
         if (photo_path == "No Foto"){
             FotoPerfil.setImageURI(Uri.parse(String.valueOf(R.drawable.nophoto)));
         } else {
-            FotoPerfil.setImageURI(Uri.parse(photo_path));
+            FotoPerfil.setImageURI(Uri.parse(MisCredenciales.getString(IMAGE_PATH, "")));
+        }
+
+        if (btn_block){
+            bloquearBoton();
+        } else {
+            desbloquearBoton();
         }
 
         btnCogerFoto.setOnClickListener(new View.OnClickListener() {
@@ -95,24 +104,58 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
                 String original_pass = MisCredenciales.getString(PASSWORD_NAME, "No Contraseña");
 
-                if (original_pass == "No Contraseña"){
+                if (num_intentos > 0){
 
-                    SharedPreferences.Editor editor = MisCredenciales.edit();
-                    editor.putString(PASSWORD_NAME, Contrasenna.getText().toString());
-                    Toast.makeText(MainActivity.this, "Contraseña guardada con exito", Toast.LENGTH_SHORT).show();
-                    editor.apply();
+                    if (original_pass == "No Contraseña"){
+
+                        SharedPreferences.Editor editor = MisCredenciales.edit();
+                        editor.putString(PASSWORD_NAME, Contrasenna.getText().toString());
+                        Toast.makeText(MainActivity.this, "Contraseña guardada con exito", Toast.LENGTH_SHORT).show();
+                        editor.apply();
+
+                    } else {
+                        if (original_pass.equals(Contrasenna.getText().toString())){
+
+                            if (photo_path != "No Foto"){
+                                //Codigo para moverme de activity
+                            } else {
+                                Toast.makeText(MainActivity.this, R.string.errorFoto, Toast.LENGTH_SHORT).show();
+                                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.traslacion);
+                                btnAcceder.startAnimation(animation);
+                                num_intentos--;
+                            }
+
+                        } else {
+                            Toast.makeText(MainActivity.this, R.string.errorClave, Toast.LENGTH_SHORT).show();
+                            Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.traslacion);
+                            btnAcceder.startAnimation(animation);
+                            num_intentos--;
+                        }
+                    }
 
                 } else {
-                    if (original_pass.equals(Contrasenna.getText().toString())){
-                        Toast.makeText(MainActivity.this, "Clave correcta", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this, original_pass, Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(MainActivity.this, "Numero de intentos alcanzado", Toast.LENGTH_SHORT).show();
+                    bloquearBoton();
+                    SharedPreferences.Editor editor = MisCredenciales.edit();
+                    editor.putBoolean(BTN_BLOCK, true);
+                    editor.apply();
                 }
 
             }
         });
 
+    }
+
+    private void desbloquearBoton() {
+        btnAcceder.setEnabled(false);
+        btnAcceder.setBackgroundColor(getResources().getColor(R.color.azul_muy_oscuro));
+        btnAcceder.setTextColor(getResources().getColor(R.color.white));
+    }
+
+    private void bloquearBoton() {
+        btnAcceder.setEnabled(false);
+        btnAcceder.setBackgroundColor(getResources().getColor(R.color.azul_hint));
+        btnAcceder.setTextColor(getResources().getColor(R.color.azul_muy_oscuro));
     }
 
     private void PedirPermisosFoto() {

@@ -6,4 +6,6 @@
     <string name="password">Contraseña</string>
     <string name="sacarfoto">Sacar Foto</string>
     <string name="cogerfoto">Coger Foto</string>
+    <string name="errorFoto">Falta una foto</string>
+    <string name="errorClave">Clave Erronea</string>
 </resources>
