@@ -7,6 +7,6 @@
     <string name="sacarfoto">"Take a picture "</string>
     <string name="cogerfoto">Take Photo</string>
     <string name="password">Password</string>
-    <string name="errorFoto">Falta una foto</string>
-    <string name="errorClave">Clave Erronea</string>
+    <string name="errorFoto">A photo is missing</string>
+    <string name="errorClave">Wrong Password</string>
 </resources>

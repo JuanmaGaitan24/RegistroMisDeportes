@@ -12,6 +12,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,7 +35,12 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
     private static final int VENGO_GALERIA = 101;
     private static final int PIDO_PERMISO_ESCRITURA = 111;
@@ -48,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     TextView Contrasenna;
     ImageView FotoPerfil;
     File fichero;
+    SensorManager sensorManager;
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.nuke_alarm);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
 
         btnSacarFoto = findViewById(R.id.buttonSacarFoto);
         btnCogerFoto = findViewById(R.id.buttonCogerFoto);
@@ -80,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (btn_block){
             bloquearBoton();
-        } else {
-            desbloquearBoton();
         }
 
         btnCogerFoto.setOnClickListener(new View.OnClickListener() {
@@ -136,9 +148,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MainActivity.this, "Numero de intentos alcanzado", Toast.LENGTH_SHORT).show();
                     bloquearBoton();
-                    SharedPreferences.Editor editor = MisCredenciales.edit();
-                    editor.putBoolean(BTN_BLOCK, true);
-                    editor.apply();
+                    mediaPlayer.setLooping(true);
+                    mediaPlayer.start();
                 }
 
             }
@@ -146,16 +157,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
     private void desbloquearBoton() {
-        btnAcceder.setEnabled(false);
-        btnAcceder.setBackgroundColor(getResources().getColor(R.color.azul_muy_oscuro));
-        btnAcceder.setTextColor(getResources().getColor(R.color.white));
+        SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
+
+
+            btnAcceder.setEnabled(true);
+            btnAcceder.setBackgroundColor(getResources().getColor(R.color.azul_muy_oscuro));
+            btnAcceder.setTextColor(getResources().getColor(R.color.white));
+            SharedPreferences.Editor editor = MisCredenciales.edit();
+            editor.putBoolean(BTN_BLOCK, false);
+            editor.apply();
+            mediaPlayer.stop();
+            try {
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            num_intentos = 3;
+
+
     }
 
     private void bloquearBoton() {
         btnAcceder.setEnabled(false);
         btnAcceder.setBackgroundColor(getResources().getColor(R.color.azul_hint));
         btnAcceder.setTextColor(getResources().getColor(R.color.azul_muy_oscuro));
+        SharedPreferences MisCredenciales = getSharedPreferences(NOMBRE_FICHERO, MODE_PRIVATE);
+        SharedPreferences.Editor editor = MisCredenciales.edit();
+        editor.putBoolean(BTN_BLOCK, true);
+        editor.apply();
     }
 
     private void PedirPermisosFoto() {
@@ -244,6 +276,22 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("ACTUALIZAR", "Se ha actualizado la galeria");
             }
         });
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_ORIENTATION){
+            Log.d("senson", "" + sensorEvent.values[1]);
+            if (sensorEvent.values[1] >= 175 && sensorEvent.values[1] <= 180){
+                desbloquearBoton();
+            }
+
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 }
